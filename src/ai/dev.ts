@@ -1,1 +1,1 @@
-import '@/ai/flows/generate-answer.ts';
+import '@/ai/flows/generate-answer';
