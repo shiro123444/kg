@@ -234,4 +234,4 @@ src/
 
 项目维护者: [您的名字] - [您的邮箱]
 
-项目链接: [https://github.com/yourusername/thinking-quantum](https://github.com/yourusername/thinking-quantum) 
+项目链接: [https://github.com/shiro123444/kg](https://github.com/shiro123444/kg) 
