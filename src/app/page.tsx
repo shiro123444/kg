@@ -4,19 +4,21 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AppleChat } from '@/components/chat/AppleChat';
 import { ModernKnowledgeGraph } from '@/components/visualization/ModernKnowledgeGraph';
+import { DataImport } from '@/components/neo4j/DataImport';
 import { 
   Brain, 
   Network, 
   MessageSquare,
   Grid,
-  Loader2
+  Loader2,
+  Upload
 } from 'lucide-react';
 
 export default function Home() {
   const [graphData, setGraphData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'chat' | 'graph'>('chat');
+  const [activeTab, setActiveTab] = useState<'chat' | 'graph' | 'import'>('chat');
 
   useEffect(() => {
     fetchGraphData();
@@ -68,6 +70,12 @@ export default function Home() {
                 >
                   图谱
                 </button>
+                <button 
+                  onClick={() => setActiveTab('import')}
+                  className={`text-sm ${activeTab === 'import' ? 'text-gray-900' : 'text-gray-500 hover:text-gray-900'} transition-colors`}
+                >
+                  数据导入
+                </button>
               </div>
             </div>
 
@@ -81,7 +89,10 @@ export default function Home() {
               <button className="text-sm text-gray-500 hover:text-gray-900 transition-colors">
                 支持
               </button>
-              <button className="p-2 rounded-lg hover:bg-gray-100 transition-colors">
+              <button 
+                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                title="更多选项"
+              >
                 <Grid className="h-4 w-4 text-gray-600" />
               </button>
             </div>
@@ -89,8 +100,8 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* Main Content - with generous padding */}
-      <main className="pt-12">
+      {/* Main Content */}
+      <main className="flex flex-col h-screen pt-0 bg-[#fbfbfd] overflow-hidden">
         <AnimatePresence mode="wait">
           {activeTab === 'chat' ? (
             <motion.div
@@ -98,38 +109,20 @@ export default function Home() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
+              className="w-full h-full pt-12"
             >
-              {/* Hero Section with Large Title */}
-              <div className="px-6 py-16 text-center">
-                <motion.h1 
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="text-6xl md:text-7xl font-semibold text-gray-900 mb-6"
-                >
-                  Thinking Quantum
-                </motion.h1>
-                <motion.p 
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 }}
-                  className="text-xl md:text-2xl text-gray-500 max-w-3xl mx-auto"
-                >
-                  基于先进的知识图谱技术，为您提供准确、深入的人工智能领域解答
-                </motion.p>
+              <div className="w-full max-w-2xl mx-auto px-4 flex flex-col items-center justify-center h-full relative">
+                <AppleChat />
               </div>
-
-              <AppleChat />
             </motion.div>
-          ) : (
+          ) : activeTab === 'graph' ? (
             <motion.div
               key="graph"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
+              className="w-full h-full pt-12"
             >
-              {/* Hero Section for Graph */}
               <div className="px-6 py-16 text-center">
                 <motion.h1 
                   initial={{ opacity: 0, y: 20 }}
@@ -173,11 +166,41 @@ export default function Home() {
                 ) : null}
               </div>
             </motion.div>
+          ) : (
+            <motion.div
+              key="import"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="w-full h-full pt-12"
+            >
+              <div className="px-6 py-16 text-center">
+                <motion.h1 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="text-6xl md:text-7xl font-semibold text-gray-900 mb-6"
+                >
+                  数据导入
+                </motion.h1>
+                <motion.p 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 }}
+                  className="text-xl md:text-2xl text-gray-500 max-w-3xl mx-auto"
+                >
+                  导入您的知识图谱数据，构建专属的知识库
+                </motion.p>
+              </div>
+
+              <div className="max-w-[800px] mx-auto px-6 pb-24">
+                <DataImport />
+              </div>
+            </motion.div>
           )}
         </AnimatePresence>
       </main>
 
-      {/* Floating Tab Bar - iOS style */}
+      {/* Floating Tab Bar for mobile */}
       <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 md:hidden">
         <div className="flex items-center gap-2 p-1 rounded-full bg-white/80 backdrop-blur-xl shadow-lg border border-gray-200/50">
           <button
@@ -201,6 +224,17 @@ export default function Home() {
           >
             <Network className="h-4 w-4" />
             <span className="text-sm font-medium">图谱</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('import')}
+            className={`px-6 py-3 rounded-full flex items-center gap-2 transition-all ${
+              activeTab === 'import' 
+                ? 'bg-gray-900 text-white' 
+                : 'text-gray-600 hover:bg-gray-100'
+            }`}
+          >
+            <Upload className="h-4 w-4" />
+            <span className="text-sm font-medium">导入</span>
           </button>
         </div>
       </div>

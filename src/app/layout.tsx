@@ -3,7 +3,7 @@ import './globals.css';
 import { Toaster } from '@/components/ui/toaster'; // Ensure Toaster is imported for potential error messages
 
 export const metadata: Metadata = {
-  title: 'AppleQ&A',
+  title: 'Thinking Quantum',
   description: 'An Apple-inspired Q&A system powered by AI.',
 };
 

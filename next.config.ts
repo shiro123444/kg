@@ -18,6 +18,15 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // 启用静态文件服务
+  async rewrites() {
+    return [
+      {
+        source: '/data/:path*',
+        destination: '/src/data/:path*',
+      },
+    ];
+  },
 };
 
 export default nextConfig;

@@ -4,7 +4,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Send, 
-  Sparkles, 
   ChevronUp,
   Mic,
   Paperclip,
@@ -17,6 +16,7 @@ interface Message {
   context?: any;
 }
 
+// 建议问题数组
 const PROMPT_SUGGESTIONS = [
   "什么是机器学习？",
   "介绍神经网络的基本原理",
@@ -28,6 +28,9 @@ export function AppleChat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  // 判断是否处于欢迎状态
+  const isWelcomeState = messages.length === 0 && !isLoading;
+  
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -84,171 +87,199 @@ export function AppleChat() {
     }
   };
 
+  // 处理建议问题点击
   const handleSuggestionClick = (suggestion: string) => {
     setInput(suggestion);
     inputRef.current?.focus();
+    // 可选：自动提交问题
+    // setTimeout(() => {
+    //   handleSubmit(new Event('submit') as any);
+    // }, 100);
   };
 
   return (
-    <div className="h-[calc(100vh-12rem)] flex flex-col">
-      {/* Messages Area */}
-      <div 
-        ref={scrollRef}
-        className="flex-1 overflow-y-auto px-4 sm:px-8 md:px-16 lg:px-32 xl:px-48 py-12"
-      >
-        <AnimatePresence mode="wait">
-          {messages.length === 0 ? (
-            <motion.div
+    <div className="flex flex-col w-full h-full">
+      <AnimatePresence mode="wait">
+        {isWelcomeState ? (
+          /* 欢迎状态：显示标题和问题建议 */
+          <motion.div 
+            key="welcome"
+            className="flex flex-col items-center justify-center w-full h-full"
+            exit={{ opacity: 0, y: -50 }}
+            transition={{ duration: 0.5 }}
+          >
+            {/* 标题区域 */}
+            <motion.div 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="flex flex-col items-center justify-center h-full text-center"
+              className="flex flex-col items-center mb-16"
             >
-              <motion.div
-                initial={{ scale: 0.8 }}
-                animate={{ scale: 1 }}
-                transition={{ delay: 0.2 }}
-                className="p-8 rounded-3xl bg-gradient-to-br from-blue-50 to-indigo-50 mb-8"
+              <motion.h1 
+                className="text-6xl md:text-7xl font-semibold text-gray-900 mb-3"
               >
-                <Sparkles className="h-16 w-16 mx-auto mb-4 text-blue-500" />
-              </motion.div>
-              
-              <h2 className="text-4xl font-semibold text-gray-900 mb-4">
-                AI 助手随时为您服务
-              </h2>
-              <p className="text-xl text-gray-500 mb-12 max-w-lg">
-                询问任何关于人工智能的问题，我会基于知识图谱为您解答
-              </p>
-
-              <div className="w-full max-w-2xl">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {PROMPT_SUGGESTIONS.map((suggestion, index) => (
-                    <motion.button
-                      key={index}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.3 + index * 0.1 }}
-                      onClick={() => handleSuggestionClick(suggestion)}
-                      className="px-6 py-4 text-left rounded-2xl bg-white/80 backdrop-blur-sm border border-gray-200/50 hover:border-blue-200/50 hover:bg-blue-50/50 transition-all duration-200 group"
-                    >
-                      <div className="text-gray-900 font-medium group-hover:text-blue-600">
-                        {suggestion}
-                      </div>
-                    </motion.button>
-                  ))}
-                </div>
+                Thinking Quantum
+              </motion.h1>
+              <div className="text-center text-gray-500 text-lg">
+                可以随时问我关于人工智能导论课程的问题
               </div>
             </motion.div>
-          ) : (
-            <div className="space-y-8 pb-8">
-              {messages.map((message, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                >
-                  <div className={`max-w-[85%] ${message.role === 'user' ? 'order-2' : 'order-1'}`}>
-                    <div
-                      className={`px-6 py-4 rounded-3xl ${
-                        message.role === 'user'
-                          ? 'bg-blue-500 text-white rounded-br-md'
-                          : 'bg-gray-100 text-gray-900 rounded-bl-md'
-                      }`}
-                    >
-                      <p className="text-[17px] leading-relaxed whitespace-pre-wrap">
-                        {message.content}
-                      </p>
+            
+            {/* 建议问题区域 */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="w-full max-w-2xl"
+            >
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6 w-full">
+                {PROMPT_SUGGESTIONS.map((suggestion, index) => (
+                  <motion.button
+                    key={index}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ 
+                      opacity: 1, 
+                      y: 0,
+                      transition: { delay: 0.3 + index * 0.1 }
+                    }}
+                    title={suggestion}
+                    onClick={() => handleSuggestionClick(suggestion)}
+                    className="px-6 py-3 text-left rounded-2xl bg-white/80 backdrop-blur-sm border border-gray-200/50 hover:border-blue-200/50 hover:bg-blue-50/50 transition-all duration-200 group w-full"
+                  >
+                    <div className="text-gray-900 font-medium group-hover:text-blue-600">
+                      {suggestion}
                     </div>
-                    {message.context && message.role === 'assistant' && (
-                      <div className="mt-2 px-4 text-sm text-gray-500">
-                        基于 {message.context.entities.length} 个知识实体
+                  </motion.button>
+                ))}
+              </div>
+            </motion.div>
+          </motion.div>
+        ) : (
+          /* 对话状态：显示消息内容 */
+          <motion.div 
+            key="chat"
+            className="flex flex-col w-full h-full py-8"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            {/* 聊天消息区域 */}
+            <div 
+              ref={scrollRef}
+              className="flex-1 overflow-y-auto mb-6 px-2"
+            >
+              <div className="space-y-6 pt-12">
+                {messages.map((message, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                  >
+                    <div className={`max-w-[85%]`}>
+                      <div
+                        className={`px-5 py-3 rounded-2xl ${
+                          message.role === 'user'
+                            ? 'bg-blue-500 text-white rounded-br-md'
+                            : 'bg-white border border-gray-200 shadow-sm text-gray-900 rounded-bl-md'
+                        }`}
+                      >
+                        <p className="text-[16px] leading-relaxed whitespace-pre-wrap">
+                          {message.content}
+                        </p>
                       </div>
-                    )}
-                  </div>
-                </motion.div>
-              ))}
-              {isLoading && (
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="flex justify-start"
-                >
-                  <div className="px-6 py-4 rounded-3xl rounded-bl-md bg-gray-100">
-                    <div className="flex items-center gap-2">
-                      <div className="flex gap-1">
-                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                      {message.context && message.role === 'assistant' && (
+                        <div className="mt-1 px-2 text-xs text-gray-500">
+                          基于 {message.context.entities.length} 个知识实体
+                        </div>
+                      )}
+                    </div>
+                  </motion.div>
+                ))}
+                {isLoading && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex justify-start"
+                  >
+                    <div className="px-5 py-3 rounded-2xl rounded-bl-md bg-white border border-gray-200 shadow-sm">
+                      <div className="flex items-center gap-2">
+                        <div className="flex gap-1">
+                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </motion.div>
-              )}
+                  </motion.div>
+                )}
+              </div>
             </div>
-          )}
-        </AnimatePresence>
-      </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {/* Input Area - Fixed at bottom */}
-      <div className="border-t border-gray-100 bg-white/80 backdrop-blur-lg">
-        <div className="px-4 sm:px-8 md:px-16 lg:px-32 xl:px-48 py-4">
-          <form onSubmit={handleSubmit} className="relative">
-            <div className="flex items-end gap-2 p-1 rounded-[2rem] bg-gray-100/80 border border-gray-200/50">
-              <button 
+      {/* 输入区域 - 固定在底部 */}
+      <div className={`w-full ${isWelcomeState ? 'mt-auto' : 'mt-4'}`}>
+        <form onSubmit={handleSubmit} className="relative">
+          <div className="flex items-end gap-2 p-1 rounded-[2rem] bg-white/90 backdrop-blur-sm border border-gray-200/80 shadow-sm">
+            <button 
+              type="button"
+              className="p-3 rounded-full hover:bg-gray-100 transition-colors"
+              disabled={isLoading}
+              title="附件"
+            >
+              <Paperclip className="h-5 w-5 text-gray-500" />
+            </button>
+            
+            <textarea
+              ref={inputRef}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="给 AI 发送消息"
+              disabled={isLoading}
+              rows={1}
+              className="apple-chat-textarea flex-1 bg-transparent border-0 focus:ring-0 focus:outline-none resize-none text-[16px] px-2 py-3 max-h-48"
+              style={{ minHeight: '48px' }}
+            />
+            
+            <button 
+              type="button"
+              className="p-3 rounded-full hover:bg-gray-100 transition-colors"
+              disabled={isLoading}
+              title="语音输入"
+            >
+              <Mic className="h-5 w-5 text-gray-500" />
+            </button>
+            
+            {isLoading ? (
+              <button
                 type="button"
-                className="p-3 rounded-full hover:bg-gray-200/80 transition-colors"
-                disabled={isLoading}
+                onClick={() => {/* TODO: Implement stop */}}
+                className="p-3 rounded-full bg-red-500 hover:bg-red-600 transition-colors"
+                title="停止生成"
               >
-                <Paperclip className="h-5 w-5 text-gray-500" />
+                <StopCircle className="h-5 w-5 text-white" />
               </button>
-              
-              <textarea
-                ref={inputRef}
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="给 AI 发送消息"
-                disabled={isLoading}
-                rows={1}
-                className="flex-1 bg-transparent border-0 focus:ring-0 focus:outline-none resize-none text-[17px] px-2 py-3 max-h-48"
-                style={{ minHeight: '48px' }}
-              />
-              
-              <button 
-                type="button"
-                className="p-3 rounded-full hover:bg-gray-200/80 transition-colors"
-                disabled={isLoading}
+            ) : (
+              <button
+                type="submit"
+                disabled={!input.trim()}
+                className={`p-3 rounded-full transition-colors ${
+                  input.trim()
+                    ? 'bg-blue-500 hover:bg-blue-600'
+                    : 'bg-gray-300'
+                }`}
+                title="发送消息"
               >
-                <Mic className="h-5 w-5 text-gray-500" />
+                <ChevronUp className="h-5 w-5 text-white" />
               </button>
-              
-              {isLoading ? (
-                <button
-                  type="button"
-                  onClick={() => {/* TODO: Implement stop */}}
-                  className="p-3 rounded-full bg-red-500 hover:bg-red-600 transition-colors"
-                >
-                  <StopCircle className="h-5 w-5 text-white" />
-                </button>
-              ) : (
-                <button
-                  type="submit"
-                  disabled={!input.trim()}
-                  className={`p-3 rounded-full transition-colors ${
-                    input.trim()
-                      ? 'bg-blue-500 hover:bg-blue-600'
-                      : 'bg-gray-300'
-                  }`}
-                >
-                  <ChevronUp className="h-5 w-5 text-white" />
-                </button>
-              )}
-            </div>
-          </form>
-          <div className="text-center mt-2 text-xs text-gray-400">
-            AI 可能会犯错。请核查重要信息。
+            )}
           </div>
+        </form>
+        <div className="text-center mt-2 text-xs text-gray-400">
+          AI 可能会犯错。请核查重要信息。
         </div>
       </div>
     </div>
